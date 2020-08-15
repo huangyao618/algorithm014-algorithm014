@@ -1,12 +1,12 @@
 class Solution {
     /*
-    //½è¼øµÄ¹öÑ§Çò½â·¨
+    //å€Ÿé‰´çš„æ»šå­¦çƒè§£æ³•
     public int removeDuplicates(int[] nums) {
         if(nums==null||nums.length==0) return 0;
         if(nums.length==1) return 1;
         int len = nums.length;
         int res = 0;
-        int delNum = 0;//¼ÇÂ¼µ±Ç°ÏîÇ°ÃæÓĞ¶àÉÙ¸öĞèÒªÉ¾³ıµÄÖØ¸´Ïî
+        int delNum = 0;//è®°å½•å½“å‰é¡¹å‰é¢æœ‰å¤šå°‘ä¸ªéœ€è¦åˆ é™¤çš„é‡å¤é¡¹
         for(int i=0;i<len;i++) {
             if(i==0) {
                 res++;
@@ -23,12 +23,12 @@ class Solution {
     }
     */
     public int removeDuplicates(int[] nums) {
-        //Ö¸Õë·¨£¬ÓÃÒ»¸öÖ¸Õë¼ÇÂ¼Ã¿Ò»¸ö·ÇÖØ¸´ÏîĞèÒª²åÈëµÄË÷ÒıÎ»ÖÃ
+        //æŒ‡é’ˆæ³•ï¼Œç”¨ä¸€ä¸ªæŒ‡é’ˆè®°å½•æ¯ä¸€ä¸ªéé‡å¤é¡¹éœ€è¦æ’å…¥çš„ç´¢å¼•ä½ç½®
         if(nums==null||nums.length==0) return 0;
         if(nums.length==1) return 1;
         int len = nums.length, res = 1,i=1;
-        for(int j=1;j<len;j++){
-            if(nums[j]!=nums[j-1]){
+        for(int j=1;j<len;j++) {
+            if(nums[j]!=nums[j-1]) {
                 nums[i++] = nums[j];
                 res++; 
             }
