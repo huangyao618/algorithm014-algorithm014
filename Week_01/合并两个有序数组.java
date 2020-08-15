@@ -1,38 +1,34 @@
 class Solution {
     /*
-    //½è¼øµÄ¹öÑ§Çò½â·¨
-    public int removeDuplicates(int[] nums) {
-        if(nums==null||nums.length==0) return 0;
-        if(nums.length==1) return 1;
-        int len = nums.length;
-        int res = 0;
-        int delNum = 0;//¼ÇÂ¼µ±Ç°ÏîÇ°ÃæÓĞ¶àÉÙ¸öĞèÒªÉ¾³ıµÄÖØ¸´Ïî
-        for(int i=0;i<len;i++) {
-            if(i==0) {
-                res++;
-                continue;
-            }
-            if(nums[i]==nums[i-1]) {
-                delNum++;
-            }else {
-                nums[i-delNum] = nums[i];
-                res++;
+    //æŒ‡é’ˆæ³•ä»åå¾€å‰éå†ï¼Œåˆ©ç”¨num1çš„ç©ºå‡ºçš„ç©ºé—´
+    //æ—¶é—´å¤æ‚åº¦Oï¼ˆnï¼‰,ç©ºé—´å¤æ‚åº¦Oï¼ˆ1ï¼‰
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        if(nums2==null||nums2.length==0)  return;
+        int end1 = m-1, end2 = n-1,end = m+n-1;
+        while(end1>=0&&end2>=0){
+            if(nums1[end1]>nums2[end2]){
+                nums1[end--] = nums1[end1--];
+            }else{
+                 nums1[end--] = nums2[end2--];              
             }
         }
-        return res;
+        if(end1==-1){
+            while(end2>=0)   nums1[end--] = nums2[end2--];
+
+        }
     }
     */
-    public int removeDuplicates(int[] nums) {
-        //Ö¸Õë·¨£¬ÓÃÒ»¸öÖ¸Õë¼ÇÂ¼Ã¿Ò»¸ö·ÇÖØ¸´ÏîĞèÒª²åÈëµÄË÷ÒıÎ»ÖÃ
-        if(nums==null||nums.length==0) return 0;
-        if(nums.length==1) return 1;
-        int len = nums.length, res = 1,i=1;
-        for(int j=1;j<len;j++){
-            if(nums[j]!=nums[j-1]){
-                nums[i++] = nums[j];
-                res++; 
-            }
-        }
-        return res;
-    }
+    /*
+    //å†…éƒ¨ä½¿ç”¨äº†å½’å¹¶æ’åºï¼Œç©ºé—´å¤æ‚åº¦ä¸ºOï¼ˆï¼ˆm+nï¼‰log(m+n)ï¼‰;ç©ºé—´å¤æ‚åº¦O(1)
+     public void merge(int[] nums1, int m, int[] nums2, int n) {
+         System.arraycopy(nums2,0,nums1,m,n);
+         //System.arraycopy(arr1,start1,arr2,start2,len)
+         //arr1 è¦è¢«å¤åˆ¶çš„æ•°ç»„
+         //start1 å¤åˆ¶çš„èµ·å§‹ä½ç½®
+         //arr2 ç›®æ ‡æ•°ç»„
+         //m è¢«å¤åˆ¶åˆ°ç›®æ ‡æ•°ç»„çš„èµ·å§‹ä½ç½®
+         //len éœ€è¦å¤åˆ¶çš„é•¿åº¦
+         Arrays.sort(nums1);
+     }   
+     */
 }
