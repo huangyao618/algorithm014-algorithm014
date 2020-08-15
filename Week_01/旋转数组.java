@@ -1,6 +1,6 @@
 class Solution {
     /*
-    //·½·¨Ò»£¬ÒÆÎ»·¨£¬Ò»¸öÒ»¸öµÄÒÆÎ»,Ê±¼ä¸´ÔÓ¶ÈO£¨k*n£©,¿Õ¼ä¸´ÔÓ¶ÈO£¨1£©
+    //æ–¹æ³•ä¸€ï¼Œç§»ä½æ³•ï¼Œä¸€ä¸ªä¸€ä¸ªçš„ç§»ä½,æ—¶é—´å¤æ‚åº¦Oï¼ˆk*nï¼‰,ç©ºé—´å¤æ‚åº¦Oï¼ˆ1ï¼‰
     public void rotate(int[] nums, int k) {
         if(nums==null||nums.length<=1) return;       
         int len = nums.length;
@@ -15,17 +15,17 @@ class Solution {
     }
     */
     /*
-    //·½·¨¶ş ·´×ª,Õû¿éµÄÒÆÎ»£¬Ê¹ÓÃÕû¿éÒÆÎ»ÖĞ¿éÄÚ²¿Ïà¶ÔÎ»ÖÃ²»±ä£¬ËùÒÔ¿ÉÒÔÊ¹ÓÃ·´×ª
-    //Ê±¼ä¸´ÔÓ¶ÈO£¨n£©,¿Õ¼ä¸´ÔÓ¶ÈO£¨1£©
+    //æ–¹æ³•äºŒ åè½¬,æ•´å—çš„ç§»ä½ï¼Œä½¿ç”¨æ•´å—ç§»ä½ä¸­å—å†…éƒ¨ç›¸å¯¹ä½ç½®ä¸å˜ï¼Œæ‰€ä»¥å¯ä»¥ä½¿ç”¨åè½¬
+    //æ—¶é—´å¤æ‚åº¦Oï¼ˆnï¼‰,ç©ºé—´å¤æ‚åº¦Oï¼ˆ1ï¼‰
     public void rotate(int[] nums,int k) {
         if(nums==null||nums.length<=1) return;       
         int len = nums.length;
         k = k%len;
-        reverseArr(nums,0,len-1);//¸Ä±ä¿éÖ®¼äµÄÏà¶ÔÎ»ÖÃ£¬µ¥¿éµÄÄÚ²¿Ë³Ğò±»·´×ªÁË
-        reverseArr(nums,0,k-1);//»¹Ô­¿éÄÚ²¿ÔªËØµÄÎ»ÖÃ
+        reverseArr(nums,0,len-1);//æ”¹å˜å—ä¹‹é—´çš„ç›¸å¯¹ä½ç½®ï¼Œå•å—çš„å†…éƒ¨é¡ºåºè¢«åè½¬äº†
+        reverseArr(nums,0,k-1);//è¿˜åŸå—å†…éƒ¨å…ƒç´ çš„ä½ç½®
         reverseArr(nums,k,len-1);
     }
-    public void reverseArr(int[] nums,int start,int end){
+    public void reverseArr(int[] nums,int start,int end) {
         if(start>=end) return;
         for(int i=start;i<start +(end-start+1)/2;i++) {
             int temp = nums[i];
@@ -35,7 +35,7 @@ class Solution {
     }
     */
     /*
-    //·ÇÔ­µØ´¦Àí£¬¿Õ¼ä¸´ÔÓ¶ÈO(n),Ê±¼ä¸´ÔÓ¶ÈËäÈ»Ò²ÊÇO(n);
+    //éåŸåœ°å¤„ç†ï¼Œç©ºé—´å¤æ‚åº¦O(n),æ—¶é—´å¤æ‚åº¦è™½ç„¶ä¹Ÿæ˜¯O(n);
     public void rotate(int[] nums,int k) { 
         if(nums==null||nums.length<=1) return;       
         int len = nums.length;
@@ -48,13 +48,13 @@ class Solution {
         return;
     }
     */
-    //·½·¨Èı£ºÁ¬ĞøÌø×ÅÒÆÎ»£¬ÀàËÆÇàÍÜÃ¿´ÎÌøk¸ñ£¬Ã¿´Î°Ñµ±Ç°Î»ÖÃÖµÈ¡³ö£¬°ÑÉÏ¸öÎ»ÖÃµÄÖµ·Åµ½¸Ã´¦£¬Óöµ½ÖØ¸´Î»ÖÃÔò½áÊø£¨½áÊøÌõ¼ş´¦»¹Òª½»»»Ò»´Î)
-    //Ê±¼ä¸´ÔÓ¶ÈO£¨n£©,¿Õ¼ä¸´ÔÓ¶ÈO£¨1£©
+    //æ–¹æ³•ä¸‰ï¼šè¿ç»­è·³ç€ç§»ä½ï¼Œç±»ä¼¼é’è›™æ¯æ¬¡è·³kæ ¼ï¼Œæ¯æ¬¡æŠŠå½“å‰ä½ç½®å€¼å–å‡ºï¼ŒæŠŠä¸Šä¸ªä½ç½®çš„å€¼æ”¾åˆ°è¯¥å¤„ï¼Œé‡åˆ°é‡å¤ä½ç½®åˆ™ç»“æŸï¼ˆç»“æŸæ¡ä»¶å¤„è¿˜è¦äº¤æ¢ä¸€æ¬¡)
+    //æ—¶é—´å¤æ‚åº¦Oï¼ˆnï¼‰,ç©ºé—´å¤æ‚åº¦Oï¼ˆ1ï¼‰
     public void rotate(int[] nums,int k) {  
         if(nums==null||nums.length<=1) return;       
         int len = nums.length;
         k = k%len;
-        int count = 0;//¼ÇÂ¼½»»»´ÎÊı£¬Ö»ĞèÒª½»»»nums.length£¬¿ÉÒÔ×÷Îª½áÊøÌõ¼ş
+        int count = 0;//è®°å½•äº¤æ¢æ¬¡æ•°ï¼Œåªéœ€è¦äº¤æ¢nums.lengthï¼Œå¯ä»¥ä½œä¸ºç»“æŸæ¡ä»¶
         for(int i=0;i<len&&count<len;i++) {
            int cur = i;
            int curVal = nums[i];
