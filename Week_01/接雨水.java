@@ -1,18 +1,18 @@
-class Node{
+class Node {
     int val;
     int index;
-    public Node(int val,int index){
+    public Node(int val,int index) {
         this.val = val;
         this.index = index;
     }
 }
 class Solution {
-    //±©Á¦·½·¨£¬±éÀúÃ¿Ò»¸öÖù×Ó£¬ÇóÖù×ÓÓÒ±ß¼°×ó±ßµÄ×î´ó¸ß¶È£¨±ß½ç£©¼´¿É
+    //æš´åŠ›æ–¹æ³•ï¼Œéå†æ¯ä¸€ä¸ªæŸ±å­ï¼Œæ±‚æŸ±å­å³è¾¹åŠå·¦è¾¹çš„æœ€å¤§é«˜åº¦ï¼ˆè¾¹ç•Œï¼‰å³å¯
      public int trap(int[] height) {
          if(height==null||height.length<3) {
              return 0;
          }
-        // PriorityQueue<Integer> queue = new PriorityQueue<>(Collections.reverseOrder());//¿Õ¼ä»»Ê±¼ä
+        // PriorityQueue<Integer> queue = new PriorityQueue<>(Collections.reverseOrder());//ç©ºé—´æ¢æ—¶é—´
          int len = height.length;
         //for(int temp:height) { queue.add(temp); }
          int sum = 0;
@@ -25,7 +25,7 @@ class Solution {
              }else {
                  //right = queue.peek();
                  right = 0;
-                 for(int j=i;j<len;j++){
+                 for(int j=i;j<len;j++) {
                      right = Math.max(right,height[j]);
                  }
                  sum = sum + ((right>height[i])?(Math.min(left,right) - height[i]):0);
@@ -34,11 +34,11 @@ class Solution {
          }
          return sum;
      }
-    //Ê¹ÓÃË«Ö¸ÕëÀ´¼ÇÂ¼µ±Ç°Öù×Ó×ó±ß½çºÍÓÒ±ß½ç
+    //ä½¿ç”¨åŒæŒ‡é’ˆæ¥è®°å½•å½“å‰æŸ±å­å·¦è¾¹ç•Œå’Œå³è¾¹ç•Œ
     /*
     public int trap(int[] height) {
         int len =  height.length;
-        if(len<3){
+        if(len<3) {
             return 0;
         }
         int left = 0;
@@ -46,18 +46,18 @@ class Solution {
         int leftMax = 0;
         int rightMax = 0;
         int ans = 0;
-        while(left<right){
-            if(height[left]<height[right]){
-                if(height[left]<leftMax){
+        while(left<right) {
+            if(height[left]<height[right]) {
+                if(height[left]<leftMax) {
                     ans = ans + leftMax - height[left];
                 }else{
                     leftMax = height[left];
                 }
                 left++;
-            }else{
-                 if(height[right]<rightMax){
+            }else {
+                 if(height[right]<rightMax) {
                     ans =ans + rightMax - height[right];
-                }else{
+                }else {
                     rightMax =height[right];
                 }
                 right--;               
@@ -66,10 +66,10 @@ class Solution {
         return ans;
     }
     */
-    //Î¬»¤Ò»¸öµ¥µ÷²»ÔöÕ»£¬£¬ÒÑÕÒµ½Ã¿Ò»¸öÖù×ÓµÄ×ó±ß½ç
+    //ç»´æŠ¤ä¸€ä¸ªå•è°ƒä¸å¢æ ˆï¼Œï¼Œå·²æ‰¾åˆ°æ¯ä¸€ä¸ªæŸ±å­çš„å·¦è¾¹ç•Œ
     /*
        public int trap(int[] height) {
-           if(height==null||height.length<3){
+           if(height==null||height.length<3) {
                return 0 ;
            }
            int len = height.length;
@@ -82,12 +82,12 @@ class Solution {
                }else {
                    while(!stack.isEmpty()&&height[i]>stack.peek().val) {
                        Node temp = stack.pop();
-                       if(stack.isEmpty()) {//´¦ÀíÖµÇ°ÃæÃ»ÓĞÖµ£¨´óÓÚ´ı´¦Àí¿ÓÍİµÄÏî£©£¬Ôò²»ÓÃ´¦Àí£¬ÒòÎªÕâÑù¿Ï¶¨×°²»ÁËË®
+                       if(stack.isEmpty()) {//å¤„ç†å€¼å‰é¢æ²¡æœ‰å€¼ï¼ˆå¤§äºå¾…å¤„ç†å‘æ´¼çš„é¡¹ï¼‰ï¼Œåˆ™ä¸ç”¨å¤„ç†ï¼Œå› ä¸ºè¿™æ ·è‚¯å®šè£…ä¸äº†æ°´
                            break;
                        }
                        sum = sum + (Math.min(height[i],stack.peek().val)-temp.val)*(i-stack.peek().index - 1);
                    }
-                   //°ÑĞ¡ÓÚµ±Ç°Öµ¶¼´¦ÀíÍêºó£¬°Ñµ±Ç°Öµ¶¼ÈëÕ»
+                   //æŠŠå°äºå½“å‰å€¼éƒ½å¤„ç†å®Œåï¼ŒæŠŠå½“å‰å€¼éƒ½å…¥æ ˆ
                     stack.push(new Node(height[i],i));
                }
            }
