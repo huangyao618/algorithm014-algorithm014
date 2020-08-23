@@ -1,0 +1,402 @@
+Queue是队列，是一种先进先出的数据结构。
+
+java.lang.Queue接口方法声明如下：
+
+boolean add(E e)
+    在队列头部增加一个元素，如果容量已满，则抛出异常，成功则返回true
+
+boolean offer(E e)
+    在队列头部增加一个元素，如果容量已满，则返回false，成功加入，返回true;
+
+E remove();
+    将队列头部元素移出队列并返回，如果队列为空，则抛出异常。
+
+E poll();
+   将队列头部元素移出队列并返回，如果队列为空，返回null
+
+E element();
+     返回队列头部节点，但不移除队列头节点，如果队列为空，则抛出异常。
+
+E peek();
+     返回队列头部节点，但不移除队列头节点，如果队列为空，返回null。
+
+1、BlockingQueue 阻塞队列
+首先 public interface BlockingQueue<E> extends Queue<E>，继承上述 Queue 接口定义的方法。
+
+例如  add,offer,remove,poll,element,peek 个方法，该方法在 BlockingQueue 的子类中，都需要首先获取锁，然后才能操作，一旦获取锁，如果队列为空，或队列已满，上述方法都是直接返回，不会等待条件触发（队列不为空，队列未满）。
+
+BlockingQueue新增方法：
+
+void put(E e) throws InterruptedException;
+    如果队列满了，将加入到 队列不满的条件队列（就是如果队列中有剩余容量增加元素的条件）阻塞，支持中断。
+
+boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException
+    是对Queue接口的offer的重载，如果队列满了，先等待timeout时间，如果还是满的话，直接返回false
+
+E take() throws InterruptedException;
+    返回头节点，并将头节点移除，如果队列为空，则在条件队列中等待。支持中断
+
+E poll(long timeout,  TimeUnit unit) throws InterruptedException
+    对队列Queue接口的poll方法的重载，如果队列为空，在条件队列中等待，直到超时，然后再尝试一次，如果队 
+
+    列继续为空，则返回false;
+
+int remainingCapacity()
+     剩余容量
+
+boolean remove(Object o)
+boolean contains(Object o);
+int drainTo(Collection<? super E> c);
+     移除该队列所有的节点，并加入到指定的集合中
+
+int drainTo(Collection<? super E> c, int maxElements);
+在学习队列的时候，我突然看到一个类 PriorityQueue 类。优先级队列，然后就看到堆，数组，二叉树等结构。
+
+2、PriorityQueue 优先级队列
+PriorityQueue优先级队列实现原理：一开始，我以为就是使用一个链表，链表中节点按照从小到大，或从大到小的顺序排列，然后从尾部增加一个节点，要遍历整个链表，将节点插入合适的位置；通过看源代码发现，完成不是上述实现；PriorityQueue的实现是，使用了最小堆，堆的数据结构如下特点：1、一颗完全二叉树；2、只允许最后两层的节点的度小于2；3：如果度小于2的节点，如果有子节点，那一定是左子树；4、最小堆的父节点比子节点都小5、最大堆，父节点比子节点都大，但左右节点的大小并没有要求。
+
+接下来我们将目光转移到PriorityQueue源码实现中。
+
+1）PrioriyQueue内部数据结构
+
+/**
+     * Priority queue represented as a balanced binary heap: the two
+     * children of queue[n] are queue[2*n+1] and queue[2*(n+1)].  The
+     * priority queue is ordered by comparator, or by the elements'
+     * natural ordering, if comparator is null: For each node n in the
+     * heap and each descendant d of n, n <= d.  The element with the
+     * lowest value is in queue[0], assuming the queue is nonempty.
+     */
+private transient Object[] queue; //用数组来存储堆，存储一个完全二叉树，是不是高大上，下标为n的元素的左子树(2n+1)，下标为(2(n+1))为右子树。
+private int size = 0; 队列中元素的个数
+private final Compartor<? super E> compartor;//比较器，如果为空，则为元素的自然排序
+private transient int modCount = 0; //结构改变次数
+ 
+
+2.1 public boolean offer(E e) 方法详解
+public boolean offer(E e) {
+        if (e == null)
+            throw new NullPointerException();
+        modCount++;
+        int i = size;
+        if (i >= queue.length)
+            grow(i + 1);        //@1  容量扩容
+        size = i + 1;
+        if (i == 0)
+            queue[0] = e;
+        else
+            siftUp(i, e);       // @2
+        return true;
+    }
+代码@1,扩容，比较简单，下面直接将代码copy出来，浏览一下即可：
+
+/**
+     * Increases the capacity of the array.
+     *
+     * @param minCapacity the desired minimum capacity
+     */
+    private void grow(int minCapacity) {
+        int oldCapacity = queue.length;
+        // Double size if small; else grow by 50%
+        int newCapacity = oldCapacity + ((oldCapacity < 64) ?
+                                         (oldCapacity + 2) :
+                                         (oldCapacity >> 1));
+        // overflow-conscious code
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        queue = Arrays.copyOf(queue, newCapacity);
+    }
+ 
+    private static int hugeCapacity(int minCapacity) {
+        if (minCapacity < 0) // overflow
+            throw new OutOfMemoryError();
+        return (minCapacity > MAX_ARRAY_SIZE) ?
+            Integer.MAX_VALUE :
+            MAX_ARRAY_SIZE;
+    }
+重点关注@2，siftUp的实现：
+private void siftUp(int k, E x) {
+        if (comparator != null)
+            siftUpUsingComparator(k, x);
+        else
+            siftUpComparable(k, x);
+    }
+ 
+    private void siftUpComparable(int k, E x) {
+        Comparable<? super E> key = (Comparable<? super E>) x;
+        while (k > 0) {
+            int parent = (k - 1) >>> 1;
+            Object e = queue[parent];
+            if (key.compareTo((E) e) >= 0)
+                break;
+            queue[k] = e;
+            k = parent;
+        }
+        queue[k] = key;
+    }
+ 
+    private void siftUpUsingComparator(int k, E x) {
+        while (k > 0) {                 // @1
+            int parent = (k - 1) >>> 1;  //@2
+            Object e = queue[parent];
+            if (comparator.compare(x, (E) e) >= 0) //@3
+                break;
+            queue[k] = e;      // @4
+            k = parent;         //@5
+        }
+        queue[k] = x;          //@6
+    }
+重点分析一下 siftUpUsingComparator 方法，比较器不为空。
+
+首先，参数k的值为增加元素之前的 size 值，也就是，PriorityQueue 总是在先将节点放在内部数组元素的索引为 size 的位置，size 加一，然后找到 element[size] 的父节点，对比两者之间的大小关系，
+如果小于父节点，则交换两者的位置，继续像上找其父节点。直到父节点为空，索引<=0代码@2，上文中也说过，PriorityQueue用数组来存储一棵完成二叉树，索引为n的左右子节点的索引分别为2n+1,2n+2( 2(n+1)),
+那已知子节点的索引为k,父节点的索引则为 看 (k -1) / 2 ,所以就不难理解 (k-1)>>>1。parent为父节点的索引。代码@3，如果子节点的值大于父节点的值，由于满足最小堆的定义（父节点比两个子节点的值都要小），不需要调整树的结构，直接将元素x添加到数组索引代表的k位置。
+代码@4，如果子节点的值小于父节点的值，则将父节点的值存入到k位置，设置k为parent，如果k的值小于等于0，则执行@6,否则继续找parent的父节点，再次比较父节点与x的大小。
+
+2.2 public E poll() 方法详解
+public E poll() {
+        if (size == 0)
+            return null;
+        int s = --size;
+        modCount++;
+        E result = (E) queue[0];       // @1
+        E x = (E) queue[s];               // @2
+        queue[s] = null;                 //@3          
+        if (s != 0)
+            siftDown(0, x);                
+        return result;                      
+    }
+再重复一下poll方法的语义，如果队列为空，则返回null,否则移除队列中的第一个元素，并返回。
+
+代码@1，返回队列中第一个元素，最小堆中，queue[0]代表根节点。
+
+代码@2,获取数组中最后一个元素，该数组有个特点，如果索引size-1的元素肯定不为空，并且为该数组最后一个不为空的元素。数组中的元素是连续不为空，因为从算法角度来说，在添加元素的时候,
+总是首先在 queue[size-1]的位置添加元素，然后与该位置的父节点去比较，并且总是先添加左节点，然后添加右节点。从而保证数组元素是连续的；从完成二叉树的定义中也规定，只有最后两层的
+节点的度少于二，也保证了数组元素不会出现不连续，所谓的不连续是不允许 queue[0],queue[2]不为空，但queue[1]为空的情况。
+
+代码@3，将queue最后一个节点设置为空，然后用该节点与根节点去做比较，将该树中最小值设置为新的根节点，达到将旧根节点移除的目的。具体请看如下代码。
+
+/**
+     * Inserts item x at position k, maintaining heap invariant by
+     * demoting x down the tree repeatedly until it is less than or
+     * equal to its children or is a leaf.
+     *
+     * @param k the position to fill
+     * @param x the item to insert
+     */
+    private void siftDown(int k, E x) {
+        if (comparator != null)
+            siftDownUsingComparator(k, x);
+        else
+            siftDownComparable(k, x);
+    }
+ 
+    private void siftDownComparable(int k, E x) {
+        Comparable<? super E> key = (Comparable<? super E>)x;
+        int half = size >>> 1;        // loop while a non-leaf
+        while (k < half) {
+            int child = (k << 1) + 1; // assume left child is least
+            Object c = queue[child];
+            int right = child + 1;
+            if (right < size &&
+                ((Comparable<? super E>) c).compareTo((E) queue[right]) > 0)
+                c = queue[child = right];
+            if (key.compareTo((E) c) <= 0)
+                break;
+            queue[k] = c;
+            k = child;
+        }
+        queue[k] = key;
+    }
+ 
+    private void siftDownUsingComparator(int k, E x) {
+        int half = size >>> 1;                            // @1
+        while (k < half) {                                   //@2
+            int child = (k << 1) + 1;                   //@3
+            Object c = queue[child];                 //@4
+            int right = child + 1;                        //@5
+            if (right < size &&                             //@6
+                comparator.compare((E) c, (E) queue[right]) > 0)    //@7
+                c = queue[child = right];
+            if (comparator.compare(x, (E) c) <= 0)                       //@8
+                break;
+            queue[k] = c;
+            k = child;
+        }
+        queue[k] = x;                                                                     //@9
+    }
+代码 siftDownUsingComparator 是从根节点开始重构该树，使之维持最下堆特性。入参中的k为0，x为原先最后一个元素。该方法的目的是要移除头部节点，然后找到最新的头节点。
+实现方法是，用指定的位置k节点开始下沉，找到最小节点成为新的头部节点，如果k节点没有子节点，直接将位置k的节点设置为x,原k节点的数据被删除；如果k有子节点，然后找到
+k的两个子节点中最小的那个节点位置(child为最小的节点)，如果K的最小的子节点比x的大的话，说明x符合成为K两个子节点的父节点，故直接将x替换原来的k即可，否则将最小的子节点替换K，
+然后从k=child，重复上述操作。
+
+代码@1，因为最后一个元素为size-1,根据该数组的特性，0-size/2的节点有子节点,不包括size/2,[0,half)为所有的根节点。故代码@2的循环条件为k>half。
+
+代码@3，k的左孩子的索引。
+
+代码@4，k的左孩子节点的值。
+
+代码@5，k的右孩子。
+
+代码@5，@7，如果右孩子不为空，则取，左右两个孩子中比较小的值，用来比较。
+
+代码@7，如果x的值比待替换的根节点的两个孩子节点都小，直接将X替换为根节点即可，运行代码@9。
+
+否则，用根节点下两个子节点中最小值替换一下根节点。然后从child位置重复上面的计算，确保新的子数也符合最小堆的定义，while循环结束有如下两种情况，1：k>=half，说明位置k已经是叶子节点了，
+故需要跳出运行；如果x的值比父节点的两个子节点都小，跳出循环。将下标k处的值设置为x。
+
+2.3 public boolean remove(Object o)
+public boolean remove(Object o) {
+        int i = indexOf(o);       
+        if (i == -1)
+            return false;
+        else {
+            removeAt(i);   // @1
+            return true;
+        }
+    }
+private E removeAt(int i) {
+        assert i >= 0 && i < size;
+        modCount++;
+        int s = --size;
+        if (s == i) // removed last element
+            queue[i] = null;
+        else {                                          // @2
+            E moved = (E) queue[s];       //@3
+            queue[s] = null;                    //@4
+            siftDown(i, moved);              //@5
+            if (queue[i] == moved) {      //@6
+                siftUp(i, moved);             //@7
+                if (queue[i] != moved)
+                    return moved;
+            }
+        }
+        return null;
+    }
+该方法的实现思想是首先在queue数组中找到该值，如果找不到，直接返回-1，是队列最后一个元素，直接从队列中删除即可，如果是队列中间的元素，删除操作就没那么简单，删除元素后，
+要保证数组元素的连续性（其实就是要保证删除后的树满足最小堆的定义）
+
+代码@3、@4，先用临时变量moved保存队列的最后一个元素，然后将队列最后一个元素删除（设置为空）
+
+代码@5，删除下标为i的元素，然后用moved元素来填充一个空位。
+
+ 
+
+siftDown执行完毕后，moved元素所在的位置有如下几种可能：
+
+moved放在下标为i的地方，这里包含两种情况，1）位置为i的元素为叶子节点。2）如果move元素比i的两个
+子元素小。
+moved放在下标大于i的地方，如果moved元素比i的最小的子节点大，此时用最小的子节点替换父节点。i的           索引设置为原i最小节点的索引，从该索引继续执行siftDown过程。
+如果moved放在下标大于i的地方，本次删除成功结束。
+
+如果moved位置放在i的位置，此时，需要上浮，确定moved是否比父节点大，如果比父节点小，则不符合最小堆定义，通过上浮调整。siftUp 方法不会删除元素，但 siftDown 方法会删除一个元素。
+
+接下来，就是从待移除的位置 i 处开始下沉，我们知道 siftDown(int k,E x)方法，可以说就是移除k位置的元素，然后将加入到以k为父节点的树中（保持最小堆特性），但要是位置为k的地方是
+叶子节点呢？siftDown的做法是直接将x放入到k的位置。但这样会不会影响最小堆特性呢，答案是可能的，也就有了代码@6的判断，如果queue[i] == moved,说明此时k是叶子节点，，应该从索引为k向上升，
+判断该节点与父节点的关系，所以调用siftUp(int i, E x)方法，上浮，确保维持最小堆特性。在这里，我还想再啰嗦一下，重温一下siftUp的实现逻辑：如果i<=0，直接将x放入到队列索引为i的位置。
+如何大于0，则找到该节点的父节点，然后比较父节点与x的大小关系，如果x大于根节点，则直接将x放入到下标为i的地方，否则，需要将父节点放入位置i上，然后继续k=parent。
+
+提问：PriorityQueue removeAt 返回值，是被移除的元素吗？
+
+2.4 public Iterator<E> iterator() 迭代器
+首先，迭代器，既然PriorityQueue内部是一个数组queue[],那迭代器，直接遍历该数组就好了，是的，但迭代器与for(int i =0; i < size; i++)这中遍历方法，
+还有一个特殊的是，迭代器支持将当前迭代的元素删除，也就是remove方法。我们也知道，移除一个元素后，要重新调整结构，保证删除一元素后继续保持最小堆的特性。
+从上文中我们知道，从0-size-1直接删除一个元素，通常的做法，是先将尾部节点（移除队列，将size减一，然后将queue[size]的元素用临时变量保存，然后将queue[size]=null）,
+用该节点与要删除的元素进行对比，替换，再重构树特性。
+
+所以，Itr类的设计，就是基于上述的考虑。
+
+private final class Itr implements Iterator<E> {
+        /**
+         * Index (into queue array) of element to be returned by
+         * subsequent call to next.
+         */
+        private int cursor = 0;      //@1
+ 
+        /**
+         * Index of element returned by most recent call to next,
+         * unless that element came from the forgetMeNot list.
+         * Set to -1 if element is deleted by a call to remove.
+         */
+        private int lastRet = -1;   //@2
+ 
+        /**
+         * A queue of elements that were moved from the unvisited portion of
+         * the heap into the visited portion as a result of "unlucky" element
+         * removals during the iteration.  (Unlucky element removals are those
+         * that require a siftup instead of a siftdown.)  We must visit all of
+         * the elements in this list to complete the iteration.  We do this
+         * after we've completed the "normal" iteration.
+         *
+         * We expect that most iterations, even those involving removals,
+         * will not need to store elements in this field.
+         */
+        private ArrayDeque<E> forgetMeNot = null;    //@3
+ 
+        /**
+         * Element returned by the most recent call to next iff that
+         * element was drawn from the forgetMeNot list.
+         */
+        private E lastRetElt = null;                                //@4
+ 
+        /**
+         * The modCount value that the iterator believes that the backing
+         * Queue should have.  If this expectation is violated, the iterator
+         * has detected concurrent modification.
+         */
+        private int expectedModCount = modCount;
+ 
+        public boolean hasNext() {       //@5
+            return cursor < size ||
+                (forgetMeNot != null && !forgetMeNot.isEmpty());
+        }
+ 
+        public E next() {
+            if (expectedModCount != modCount)
+                throw new ConcurrentModificationException();
+            if (cursor < size)
+                return (E) queue[lastRet = cursor++];
+            if (forgetMeNot != null) {
+                lastRet = -1;
+                lastRetElt = forgetMeNot.poll();
+                if (lastRetElt != null)
+                    return lastRetElt;
+            }
+            throw new NoSuchElementException();
+        }
+ 
+        public void remove() {
+            if (expectedModCount != modCount)
+                throw new ConcurrentModificationException();
+            if (lastRet != -1) {
+                E moved = PriorityQueue.this.removeAt(lastRet);
+                lastRet = -1;
+                if (moved == null)
+                    cursor--;
+                else {
+                    if (forgetMeNot == null)
+                        forgetMeNot = new ArrayDeque<>();
+                    forgetMeNot.add(moved);
+                }
+            } else if (lastRetElt != null) {
+                PriorityQueue.this.removeEq(lastRetElt);
+                lastRetElt = null;
+            } else {
+                throw new IllegalStateException();
+            }
+            expectedModCount = modCount;
+        }
+    }
+代码@1,cursor 遍历数组的游标，从0开始， 从这里也可以看出，在没有调用it.remove方法时，就是遍历整个数组元素。
+
+代码@2，lastRet 上一次返回的元素索引。-1代表未返回。
+
+代码@3，forgetMeNot 这个队列由什么用呢？大家可以先想想。
+
+代码@4，lastRetElt 上一次返回的元素。
+
+代码@5,判断是否还有可遍历的元素，如果cursor 小于size,或者forgetMeNot 不为空，说明有元素可遍历，这里forgetMeNot不为空，为什么就会有元素可遍历呢？其实将目光放入到remove方法时，
+会发现，forgetMeNot中的元素，其实就是removeAt返回的元素，那我们来探究removeAt(int i)在什么情况下会返回不为空的元素，PriorityQueue在移除下标为i的元素，是这样处理的，首先，
+将队列的size-1,然后将最后一个元素出队列,记为moved，然后去执行 siftDown( i , moved),此方法会首先肯定能删除原先位置为i的元素，但moved会放在队列的什么地方呢？因为moved存入的位置，
+直接会影响到@1中cursor游标去顺序访问数组相关。如果moved最后放在大于i的位置，则可以直接返回null,否则需要返回，并放入一个临时地方，保证最后能遍历到。所以，forgetMeNot就是用来存储
+未遍历到，但已经移动到小于或等于cursor的位置的元素。
