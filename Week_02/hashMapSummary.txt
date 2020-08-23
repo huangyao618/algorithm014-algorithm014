@@ -1,0 +1,28 @@
+HashMap在java的jdk1.7中是基于数组加链表实现；而在jdk1.8是基于数组+链表+红黑树来实现的
+		key,value 封装在一个节点Node中；
+		然后会创建一个默认大小的Node[] table；
+		关键函数的分析：
+		hash():
+			  static final int hash(Object var0) {
+				int var1;
+				return var0 == null ? 0 : (var1 = var0.hashCode()) ^ var1 >>> 16;
+			}
+		将key值调用hashCode()得到一个32位的int型整型；然后通过移位操作对其高16位和低16位进行异或操作得到一个int的整型，后面用得到的hash值与table.length进行与操作得到
+	该Node元素在table的索引映射；
+
+		put(key,value)函数
+		内部再一次调用putVal()函数；调用hash(key)得到对应hash值，然后hash值与table.length（2的幂级数）进行与操作得到应该储存的索引位置；
+		如果table[index]==null;则没有出现hash冲突，直接把key和value封装为Node然后存入该位置即可；
+		如果出现hash冲突；然后需要判断该节点以下是树结构还是链表结构（默认长度小于一个给定值时是链表，大于该值就是红黑树）
+		然后从索引位置开始向下遍历，每一个遍历位置的节点都要进行判断，若果待插入节点的key图该节点相同，则更新key值对应的value
+		否则，继续往下遍历，如果遍历结束还没有找到相等的key;则把该待插入节点加在链表后面或红黑树后面。
+
+
+		get(key)函数
+		调用hash(key)得到对应hash值，然后hash值与table.length（2的幂级数）进行与操作得到应该储存的索引位置；
+		如果table[index]==null;则没有出现hash冲突，直接把key和value封装为Node然后存入该位置即可；
+		如果出现hash冲突；然后需要判断该节点以下是树结构还是链表结构（默认长度小于一个给定值时是链表，大于该值就是红黑树）
+		然后从索引位置开始向下遍历，每一个遍历位置的节点都要进行判断，若果待插入节点的key图该节点相同，则返回key对应的Node引用
+		否则，继续往下遍历，如果遍历结束还没有找到相等的key;则返回null值。
+
+		remove(key)函数，同理
